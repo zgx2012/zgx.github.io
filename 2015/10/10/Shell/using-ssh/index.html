@@ -1,0 +1,464 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>ssh 使用 | ZGX&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="zgx2012">
+    
+
+    
+    <meta name="description" content="ssh 登录服务器1ssh root@XXX.XXX.XXX -i 私有key文件
+按照后面的配置可以省略“私有key文件”。
+同时管理多个ssh私钥新增ssh的配置文件，并修改权限12touch ~/.ssh/configchmod 600 ~/.ssh/config
+修改config文件的内容1234567Host 192.168.130.88    IdentityFile ~/.ssh/i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ssh 使用">
+<meta property="og:url" content="http://zgx2012.github.com/2015/10/10/Shell/using-ssh/index.html">
+<meta property="og:site_name" content="ZGX's blog">
+<meta property="og:description" content="ssh 登录服务器1ssh root@XXX.XXX.XXX -i 私有key文件
+按照后面的配置可以省略“私有key文件”。
+同时管理多个ssh私钥新增ssh的配置文件，并修改权限12touch ~/.ssh/configchmod 600 ~/.ssh/config
+修改config文件的内容1234567Host 192.168.130.88    IdentityFile ~/.ssh/i">
+<meta property="og:updated_time" content="2015-10-10T08:21:16.394Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ssh 使用">
+<meta name="twitter:description" content="ssh 登录服务器1ssh root@XXX.XXX.XXX -i 私有key文件
+按照后面的配置可以省略“私有key文件”。
+同时管理多个ssh私钥新增ssh的配置文件，并修改权限12touch ~/.ssh/configchmod 600 ~/.ssh/config
+修改config文件的内容1234567Host 192.168.130.88    IdentityFile ~/.ssh/i">
+
+    
+    <link rel="alternative" href="/atom.xml" title="ZGX&#39;s blog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="ZGX&#39;s blog">ZGX&#39;s blog</a></h1>
+				<h2 class="blog-motto">ZGX&#39;s programming life</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:zgx2012.github.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/10/10/Shell/using-ssh/" title="ssh 使用" itemprop="url">ssh 使用</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="zgx2012" target="_blank" itemprop="author">zgx2012</a>
+		
+  <p class="article-time">
+    <time datetime="2015-10-10T08:17:52.000Z" itemprop="datePublished"> 发表于 2015-10-10</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ssh_登录服务器"><span class="toc-number">1.</span> <span class="toc-text">ssh 登录服务器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#同时管理多个ssh私钥"><span class="toc-number">2.</span> <span class="toc-text">同时管理多个ssh私钥</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用expect脚本执行ssh命令"><span class="toc-number">3.</span> <span class="toc-text">利用expect脚本执行ssh命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Expect"><span class="toc-number">4.</span> <span class="toc-text">Expect</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#send"><span class="toc-number">4.1.</span> <span class="toc-text">send</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#expect"><span class="toc-number">4.2.</span> <span class="toc-text">expect</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#spawn"><span class="toc-number">4.3.</span> <span class="toc-text">spawn</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<h2 id="ssh_登录服务器">ssh 登录服务器</h2><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@XXX<span class="class">.XXX</span><span class="class">.XXX</span> -<span class="tag">i</span> 私有key文件</span><br></pre></td></tr></table></figure>
+<p>按照后面的配置可以省略“私有key文件”。</p>
+<h2 id="同时管理多个ssh私钥">同时管理多个ssh私钥</h2><p>新增ssh的配置文件，并修改权限<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">touch ~<span class="regexp">/.ssh/config</span></span><br><span class="line">chmod <span class="number">600</span> ~<span class="regexp">/.ssh/config</span></span><br></pre></td></tr></table></figure></p>
+<p>修改config文件的内容<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Host <span class="number">192.168</span>.<span class="number">130.88</span></span><br><span class="line">    IdentityFile ~/.ssh/id_rsa<span class="class">.work</span></span><br><span class="line">    User lee</span><br><span class="line"> </span><br><span class="line">Host github<span class="class">.com</span></span><br><span class="line">    IdentityFile ~/.ssh/id_rsa<span class="class">.github</span></span><br><span class="line">    User git</span><br></pre></td></tr></table></figure></p>
+<p>这样在登陆的时候，ssh会根据登陆不同的域来读取相应的私钥文件。</p>
+<h2 id="利用expect脚本执行ssh命令">利用expect脚本执行ssh命令</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#!/usr/bin/expect -f</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> password admin</span><br><span class="line"></span><br><span class="line">spawn ssh root@<span class="number">192.168</span><span class="number">.130</span><span class="number">.88</span> <span class="string">"telnetd -l /system/xbin/sh"</span></span><br><span class="line">expect <span class="string">"*assword:*"</span>  </span><br><span class="line">  </span><br><span class="line">send <span class="string">"\$password\r"</span>  </span><br><span class="line">expect eof</span><br></pre></td></tr></table></figure>
+<blockquote>
+<h2 id="Expect">Expect</h2><p>上面脚本中的自动交互用到了expect，那么什么是expect呢？</p>
+<p>expect是一个基于Tcl的用于自动交互操作的工具语言，它适合用来编写需要交互的自动化脚本，比如上面提到的SSH输入用户名密码，自动FTP等等场景。<br>除了具有Tcl的语法，expect提供了几个常用的命令：</p>
+<h3 id="send">send</h3><p>用来发送一个字符串，比如 send “hello world”。<br>初始情况下，这个字符串会发送到标准输出。如果你用的是max OSX或者linux，可以在Terminal下直接输入expect命令并回车，就进入了expect交互环境，此时，输入send “hello world”就可以看到结果。<br>一旦你的程序已经与其他程序进行交互，字符串就会被发送到其他程序那里。如上面的例子脚本中，我们调用send “\$password\r”就是把密码发送给SSH连接的服务器端指定端口。</p>
+<h3 id="expect">expect</h3><p>与send相反，expect用来等待你所期望的字符串。比如expect “hello”<br>在expect后面跟的字符串中，你可以指定一个正则表达式。<br>expect会一直等待下去，除非收到的字符串与预期的格式匹配，或者到了超期时间。</p>
+<h3 id="spawn">spawn</h3><p>spawn用来启动一个新的进程，比如上面的spawn ssh root@192.168.130.88 “telnetd -l /system/xbin/sh”, Expect会执行命令ssh root@192.168.130.88 “telnetd -l /system/xbin/sh”。<br>在交互式的场景中，当你输入命令后，可能服务器端会返回一些操作提示符，以让你输入命令。Expect提供了这样三个常用的命令，spawn, expect和send，恰好满足这种需要。把它们结合起来使用，可以实现很多简单的自动化脚本。</p>
+<p>其它常用的命令还有：interact，比如你通过脚本自动连接到了某个ftp，并输入了用户名密码，此时需要人工输入一些命令，就可以使用interact命令，它会把脚本的控制权交给用户；sleep，等待多少秒等等。</p>
+<p>由于expect是从Tcl继承下来的，所以也支持Tcl的语法和命令，比如变量声明、流程控制等等。</p>
+</blockquote>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Tcl/">Tcl</a><a href="/tags/shell/">shell</a><a href="/tags/ssh/">ssh</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://zgx2012.github.com/2015/10/10/Shell/using-ssh/" data-title="ssh 使用 | ZGX&#39;s blog" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2015/09/14/Android/format-tombstone/"  title="封装addr2line，从tombstone中解析出调用栈">
+ <strong>下一篇：</strong><br/> 
+ <span>封装addr2line，从tombstone中解析出调用栈
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ssh_登录服务器"><span class="toc-number">1.</span> <span class="toc-text">ssh 登录服务器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#同时管理多个ssh私钥"><span class="toc-number">2.</span> <span class="toc-text">同时管理多个ssh私钥</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用expect脚本执行ssh命令"><span class="toc-number">3.</span> <span class="toc-text">利用expect脚本执行ssh命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Expect"><span class="toc-number">4.</span> <span class="toc-text">Expect</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#send"><span class="toc-number">4.1.</span> <span class="toc-text">send</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#expect"><span class="toc-number">4.2.</span> <span class="toc-text">expect</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#spawn"><span class="toc-number">4.3.</span> <span class="toc-text">spawn</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/android/" title="android">android<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/debug/" title="debug">debug<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ssh/" title="ssh">ssh<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/shell/" title="shell">shell<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Tcl/" title="Tcl">Tcl<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ndk/" title="ndk">ndk<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://zipperary.com" target="_blank" title="Zippera&#39;s Blog">Zippera&#39;s Blog</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="http://wuchong.me" target="_blank" title="Jark&#39;s Blog">Jark&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="/about" target="_blank" title="zgx2012">zgx2012</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
